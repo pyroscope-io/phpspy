@@ -1,6 +1,5 @@
 #include "phpspy.h"
 
-#ifdef USE_DIRECT
 static int copy_proc_mem_direct(trace_target_t *target,
                                 const char *what, void *raddr,
                                 void *laddr, size_t size) {
@@ -18,10 +17,9 @@ static int copy_proc_mem_direct(trace_target_t *target,
   }
   return PHPSPY_OK;
 }
-#else
 static int copy_proc_mem_syscall(trace_target_t *target,
-                                 const char *what, void *raddr,
-                                 void *laddr, size_t size) {
+				const char *what, void *raddr,
+                                void *laddr, size_t size) {
   struct iovec local;
   struct iovec remote;
   local.iov_base = laddr;
@@ -42,7 +40,6 @@ static int copy_proc_mem_syscall(trace_target_t *target,
 
   return PHPSPY_OK;
 }
-#endif
 
 int copy_proc_mem(trace_target_t *target, const char *what, void *raddr,
                   void *laddr, size_t size) {
@@ -108,7 +105,7 @@ int initialize(pid_t pid, struct trace_context_s *context, void *event_udata,
   return rv;
 }
 
-void deinitialize([[maybe_unused]] struct trace_context_s *context) {
+void deinitialize(struct trace_context_s *context) {
 #ifdef USE_DIRECT
   close(context->target.mem_fd);
 #endif
